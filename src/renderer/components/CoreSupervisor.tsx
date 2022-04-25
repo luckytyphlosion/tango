@@ -1,5 +1,4 @@
 import React from "react";
-import { Trans } from "react-i18next";
 import tmp from "tmp-promise";
 
 import Box from "@mui/material/Box";
@@ -10,7 +9,7 @@ import Typography from "@mui/material/Typography";
 
 import { makeROM } from "../../game";
 import * as ipc from "../../ipc";
-import { ReplayInfo } from "../../replay";
+import { getCorePath } from "../../paths";
 import { useConfig } from "./ConfigContext";
 
 export function CoreSupervisor({
@@ -25,13 +24,7 @@ export function CoreSupervisor({
   romPath: string;
   savePath: string;
   patchPath?: string;
-  matchSettings?: {
-    sessionID: string;
-    replaysPath: string;
-    replayInfo: ReplayInfo;
-    inputDelay: number;
-    matchType: number;
-  };
+  matchSettings?: ipc.MatchSettings;
   incarnation: number;
   windowTitle: string;
   onExit: (exitStatus: ipc.ExitStatus) => void;
@@ -46,7 +39,6 @@ export function CoreSupervisor({
     onExitRef.current = onExit;
   }, [onExit]);
 
-  const [state, setState] = React.useState<ipc.State | null>(null);
   const [stderr, setStderr] = React.useState<string[]>([]);
   const [exitStatus, setExitStatus] = React.useState<ipc.ExitStatus | null>(
     null
@@ -62,41 +54,25 @@ export function CoreSupervisor({
       romTmpFileRef.current = await makeROM(romPath, patchPath || null);
 
       const core = new ipc.Core(
-        {
-          window_title: windowTitle,
-          rom_path: romTmpFileRef.current!.path,
-          save_path: savePath,
-          keymapping: configRef.current.keymapping,
-          match_settings:
-            matchSettings == null
-              ? null
-              : {
-                  session_id: matchSettings.sessionID,
-                  input_delay: matchSettings.inputDelay,
-                  match_type: matchSettings.matchType,
-                  matchmaking_connect_addr:
-                    configRef.current.matchmakingConnectAddr,
-                  ice_servers: configRef.current.iceServers,
-                  replays_path: matchSettings.replaysPath,
-                  replay_metadata: JSON.stringify(matchSettings.replayInfo),
-                },
-        },
+        getCorePath(),
+        romTmpFileRef.current.path,
+        savePath,
+        windowTitle,
+        configRef.current.keymapping,
+        matchSettings || null,
         {
           signal: abortControllerRef.current.signal,
         }
       );
+      core.on("stderr", (v) => {
+        setStderr((stderr) => {
+          stderr.push(v);
+          return stderr;
+        });
+      });
       core.on("exit", (exitStatus) => {
         setExitStatus(exitStatus);
         onExitRef.current(exitStatus);
-      });
-      core.on("state", (state) => {
-        setState(state);
-      });
-      core.on("stderr", (stderr) => {
-        setStderr((lines) => {
-          lines.push(stderr);
-          return lines;
-        });
       });
     })();
 
@@ -106,7 +82,15 @@ export function CoreSupervisor({
       }
       abortControllerRef.current.abort();
     };
-  }, [romPath, savePath, patchPath, windowTitle, matchSettings, incarnation]);
+  }, [
+    romPath,
+    savePath,
+    patchPath,
+    config.keymapping,
+    matchSettings,
+    windowTitle,
+    incarnation,
+  ]);
 
   return (
     <Modal
@@ -141,17 +125,7 @@ export function CoreSupervisor({
             disableShrink
             size="2rem"
           />
-          <Typography>
-            {state == null ? (
-              <Trans i18nKey="supervisor:status.starting" />
-            ) : state == "Running" ? (
-              <Trans i18nKey="supervisor:status.running" />
-            ) : state == "Waiting" ? (
-              <Trans i18nKey="supervisor:status.waiting" />
-            ) : state == "Connecting" ? (
-              <Trans i18nKey="supervisor:status.connecting" />
-            ) : null}
-          </Typography>
+          <Typography></Typography>
         </Stack>
       </Box>
     </Modal>

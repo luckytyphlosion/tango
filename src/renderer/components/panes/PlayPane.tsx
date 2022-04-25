@@ -353,35 +353,35 @@ export default function PlayPane({ active }: { active: boolean }) {
                         )
                       : undefined
                   }
-                  matchSettings={
-                    startedState.linkCode != null
-                      ? {
-                          sessionID: `${netplayCompatibility}-${MATCH_TYPES[matchType]}-${startedState.linkCode}`,
-                          replaysPath: path.join(
-                            getReplaysPath(),
-                            `${datefns.format(
-                              now,
-                              "yyyyMMddHHmmmmss"
-                            )}-${netplayCompatibility}-${
-                              MATCH_TYPES[matchType]
-                            }-${startedState.linkCode}`
-                          ),
-                          replayInfo: {
-                            ts: now.valueOf(),
-                            rom: saves[saveName!].romName!,
-                            patch:
-                              patchInfo != null
-                                ? {
-                                    name: patchName!,
-                                    version: patchVersion!,
-                                  }
-                                : null,
-                          },
-                          inputDelay,
-                          matchType,
-                        }
-                      : undefined
-                  }
+                  // matchSettings={
+                  //   startedState.linkCode != null
+                  //     ? {
+                  //         sessionID: `${netplayCompatibility}-${MATCH_TYPES[matchType]}-${startedState.linkCode}`,
+                  //         replaysPath: path.join(
+                  //           getReplaysPath(),
+                  //           `${datefns.format(
+                  //             now,
+                  //             "yyyyMMddHHmmmmss"
+                  //           )}-${netplayCompatibility}-${
+                  //             MATCH_TYPES[matchType]
+                  //           }-${startedState.linkCode}`
+                  //         ),
+                  //         replayInfo: {
+                  //           ts: now.valueOf(),
+                  //           rom: saves[saveName!].romName!,
+                  //           patch:
+                  //             patchInfo != null
+                  //               ? {
+                  //                   name: patchName!,
+                  //                   version: patchVersion!,
+                  //                 }
+                  //               : null,
+                  //         },
+                  //         inputDelay,
+                  //         matchType,
+                  //       }
+                  //     : undefined
+                  // }
                   savePath={path.join(getSavesPath(), saveName!)}
                   windowTitle={`${
                     KNOWN_ROMS[saves[saveName!].romName].title[

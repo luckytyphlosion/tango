@@ -3,8 +3,6 @@ import path from "path";
 
 import { app } from "@electron/remote";
 
-import * as ipc from "./ipc";
-
 export interface Keymapping {
   up: string;
   down: string;
@@ -19,7 +17,7 @@ export interface Keymapping {
 }
 
 export interface Config {
-  keymapping: ipc.Args["keymapping"];
+  keymapping: Keymapping;
   matchmakingConnectAddr: string;
   iceServers: string[];
 }

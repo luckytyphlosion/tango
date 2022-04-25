@@ -5,6 +5,13 @@ import { EventEmitter, Readable } from "stream";
 import { Keymapping } from "./config";
 import { FromSupervisor, ToSupervisor } from "./proto/ipc";
 
+export interface MatchSettings {
+  rngSeed: string;
+  inputDelay: number;
+  isPolite: boolean;
+  matchType: number;
+}
+
 export interface ExitStatus {
   exitCode: number | null;
   signalCode: NodeJS.Signals | null;
@@ -19,12 +26,7 @@ export class Core extends EventEmitter {
     savePath: string,
     windowTitle: string,
     keymapping: Keymapping,
-    matchSettings: {
-      rngSeed: string;
-      inputDelay: number;
-      isPolite: boolean;
-      matchType: number;
-    } | null = null,
+    matchSettings: MatchSettings | null = null,
     { signal }: { signal?: AbortSignal } = {}
   ) {
     super();
@@ -66,6 +68,13 @@ export class Core extends EventEmitter {
 
     this.proc.stderr.on("data", (data) => {
       this.emit("stderr", data.toString());
+    });
+
+    this.proc.addListener("exit", () => {
+      this.emit("exit", {
+        exitCode: this.proc.exitCode,
+        signalCode: this.proc.signalCode,
+      });
     });
   }
 

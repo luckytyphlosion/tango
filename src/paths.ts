@@ -23,5 +23,5 @@ export function getSavesPath() {
 }
 
 export function getCorePath() {
-  return path.join(app.getAppPath(), "core");
+  return path.join(app.getAppPath(), "core", "tango-core");
 }
