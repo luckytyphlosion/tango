@@ -5,6 +5,19 @@ import { app } from "@electron/remote";
 
 import * as ipc from "./ipc";
 
+export interface Keymapping {
+  up: string;
+  down: string;
+  left: string;
+  right: string;
+  a: string;
+  b: string;
+  l: string;
+  r: string;
+  select: string;
+  start: string;
+}
+
 export interface Config {
   keymapping: ipc.Args["keymapping"];
   matchmakingConnectAddr: string;
