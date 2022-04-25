@@ -1,4 +1,3 @@
-import * as datefns from "date-fns";
 import path from "path";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -29,7 +28,7 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
-import { getPatchesPath, getReplaysPath, getROMsPath, getSavesPath } from "../../../paths";
+import { getPatchesPath, getROMsPath, getSavesPath } from "../../../paths";
 import { KNOWN_ROMS } from "../../../rom";
 import { CopyButton } from "../CopyButton";
 import { CoreSupervisor } from "../CoreSupervisor";
@@ -115,8 +114,6 @@ export default function PlayPane({ active }: { active: boolean }) {
         ? patchInfo.versions[patchVersion].netplayCompatibility
         : romInfo.netplayCompatibility
       : "";
-
-  const now = new Date();
 
   return (
     <Box
@@ -353,35 +350,15 @@ export default function PlayPane({ active }: { active: boolean }) {
                         )
                       : undefined
                   }
-                  // matchSettings={
-                  //   startedState.linkCode != null
-                  //     ? {
-                  //         sessionID: `${netplayCompatibility}-${MATCH_TYPES[matchType]}-${startedState.linkCode}`,
-                  //         replaysPath: path.join(
-                  //           getReplaysPath(),
-                  //           `${datefns.format(
-                  //             now,
-                  //             "yyyyMMddHHmmmmss"
-                  //           )}-${netplayCompatibility}-${
-                  //             MATCH_TYPES[matchType]
-                  //           }-${startedState.linkCode}`
-                  //         ),
-                  //         replayInfo: {
-                  //           ts: now.valueOf(),
-                  //           rom: saves[saveName!].romName!,
-                  //           patch:
-                  //             patchInfo != null
-                  //               ? {
-                  //                   name: patchName!,
-                  //                   version: patchVersion!,
-                  //                 }
-                  //               : null,
-                  //         },
-                  //         inputDelay,
-                  //         matchType,
-                  //       }
-                  //     : undefined
-                  // }
+                  matchSettings={
+                    startedState.linkCode != null
+                      ? {
+                          sessionID: `${netplayCompatibility}-${MATCH_TYPES[matchType]}-${startedState.linkCode}`,
+                          inputDelay,
+                          matchType,
+                        }
+                      : undefined
+                  }
                   savePath={path.join(getSavesPath(), saveName!)}
                   windowTitle={`${
                     KNOWN_ROMS[saves[saveName!].romName].title[

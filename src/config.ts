@@ -19,7 +19,7 @@ export interface Keymapping {
 export interface Config {
   keymapping: Keymapping;
   matchmakingConnectAddr: string;
-  iceServers: string[];
+  webrtc: RTCConfiguration;
 }
 
 export const DEFAULT: Config = {
@@ -36,13 +36,15 @@ export const DEFAULT: Config = {
     start: "Return",
   },
   matchmakingConnectAddr: "wss://mm.tango.murk.land",
-  iceServers: [
-    "stun://stun.l.google.com:19302",
-    "stun://stun1.l.google.com:19302",
-    "stun://stun2.l.google.com:19302",
-    "stun://stun3.l.google.com:19302",
-    "stun://stun4.l.google.com:19302",
-  ],
+  webrtc: {
+    iceServers: [
+      { urls: ["stun:stun.l.google.com:19302"] },
+      { urls: ["stun:stun1.l.google.com:19302"] },
+      { urls: ["stun:stun2.l.google.com:19302"] },
+      { urls: ["stun:stun3.l.google.com:19302"] },
+      { urls: ["stun:stun4.l.google.com:19302"] },
+    ],
+  },
 };
 
 export async function load(filename: string) {
@@ -58,7 +60,7 @@ export async function load(filename: string) {
   }
   const str = data.toString();
   try {
-    return JSON.parse(str) as Config;
+    return { ...DEFAULT, ...JSON.parse(str) } as Config;
   } catch {
     return DEFAULT;
   }

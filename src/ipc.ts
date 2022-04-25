@@ -78,21 +78,25 @@ export class Core extends EventEmitter {
     });
   }
 
-  async _rawWrite(buf: Buffer) {
+  private async _rawWrite(buf: Buffer) {
     const r = Readable.from(buf);
     r.pipe(this.proc.stdin, { end: false });
     await once(r, "end");
   }
 
-  async _rawRead(n: number) {
+  private async _rawRead(n: number) {
     const chunks = [];
     while (n > 0) {
-      const chunk = this.proc.stdout.read(n) as Buffer;
+      if (this.proc.stdout.readableLength == 0) {
+        await once(this.proc.stdout, "readable");
+      }
+      const chunk = this.proc.stdout.read(
+        Math.min(n, this.proc.stdout.readableLength)
+      ) as Buffer;
       if (chunk == null) {
         if (this.proc.stdout.readableEnded) {
           return null;
         }
-        await once(this.proc.stdout, "readable");
         continue;
       }
       chunks.push(chunk);
@@ -101,7 +105,7 @@ export class Core extends EventEmitter {
     return Buffer.concat(chunks);
   }
 
-  async _writeWithLengthHeader(buf: Buffer) {
+  private async _writeLengthDelimited(buf: Buffer) {
     const header = Buffer.alloc(4);
     const dv = new DataView(new Uint8Array(header).buffer);
     dv.setUint32(0, buf.length, true);
@@ -109,7 +113,7 @@ export class Core extends EventEmitter {
     await this._rawWrite(buf);
   }
 
-  async _readWithLengthHeader() {
+  private async _readLengthDelimited() {
     const header = await this._rawRead(4);
     if (header == null) {
       return null;
@@ -120,13 +124,13 @@ export class Core extends EventEmitter {
   }
 
   public async write(p: FromSupervisor) {
-    await this._writeWithLengthHeader(
+    await this._writeLengthDelimited(
       Buffer.from(FromSupervisor.encode(p).finish())
     );
   }
 
   public async read() {
-    const buf = await this._readWithLengthHeader();
+    const buf = await this._readLengthDelimited();
     if (buf == null) {
       return null;
     }
