@@ -36,7 +36,8 @@
     "tmp-promise": "^3.0.3",
     "toml": "^3.0.0",
     "ts-node": "^10.7.0",
-    "ts-proto": "^1.110.4"
+    "ts-proto": "^1.110.4",
+    "websocket-iterator": "^1.0.1"
   },
   "devDependencies": {
     "@types/i18next-fs-backend": "^1.1.2",
