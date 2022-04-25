@@ -60,9 +60,9 @@ export class Core extends EventEmitter {
       }
     );
 
-    // window.addEventListener("beforeunload", () => {
-    //   this.proc.kill();
-    // });
+    window.addEventListener("beforeunload", () => {
+      this.proc.kill();
+    });
 
     this.proc.stderr.on("data", (data) => {
       this.emit("stderr", data.toString());
